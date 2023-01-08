@@ -1,7 +1,10 @@
-#[macro_use]
-extern crate quickcheck;
-
 /// A string that can fit eight bytes
+#[cfg(test)]
+extern crate quickcheck;
+#[cfg(test)]
+#[macro_use(quickcheck)]
+extern crate quickcheck_macros;
+
 ///
 /// The rest (unused) bytes are null-padded. This means that the
 /// null byte (`\0`) cannot be used in the string proper.
@@ -33,7 +36,7 @@ impl String64 {
         s.bytes()
             .zip(array.iter_mut())
             .for_each(|(b, ptr)| *ptr = b);
-        Some(String64(u64::from_ne_bytes(array)))
+        Some(String64(u64::from_be_bytes(array)))
     }
 }
 
@@ -91,9 +94,8 @@ mod tests {
         assert_eq!(actual, None);
     }
 
-    quickcheck! {
-        fn new_and_alt1(s: String) -> bool {
-            String64::new(&s) == String64::new_alt1(&s)
-        }
+    #[quickcheck]
+    fn new_and_alt1(s: String) -> bool {
+        String64::new(&s) == String64::new_alt1(&s)
     }
 }
