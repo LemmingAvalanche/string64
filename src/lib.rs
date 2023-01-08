@@ -7,6 +7,7 @@ pub struct String64(u64);
 
 impl String64 {
     /// Convert to `String64` if it fits and it contains no null bytes
+    // NOTE can’t be `const` due to the for loop
     pub fn new(s: &str) -> Option<String64> {
         if s.len() > 8 || s.contains("\0") {
             return None;
@@ -61,5 +62,18 @@ mod tests {
         let actual = String64::new("aaaa");
         let expected = Some(String64(0x6161616100000000));
         assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn four_a_with_ring_above() {
+        let actual = String64::new("åååå");
+        let expected = Some(String64(0xc3a5c3a5c3a5c3a5));
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn five_a_with_ring_above_is_too_long() {
+        let actual = String64::new("ååååå");
+        assert_eq!(actual, None);
     }
 }
