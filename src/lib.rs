@@ -1,3 +1,6 @@
+#[macro_use]
+extern crate quickcheck;
+
 /// A string that can fit eight bytes
 ///
 /// The rest (unused) bytes are null-padded. This means that the
@@ -84,5 +87,11 @@ mod tests {
     fn five_a_with_ring_above_is_too_long() {
         let actual = String64::new("ååååå");
         assert_eq!(actual, None);
+    }
+
+    quickcheck! {
+        fn new_and_alt1(s: String) -> bool {
+            String64::new(&s) == String64::new_alt1(&s)
+        }
     }
 }
