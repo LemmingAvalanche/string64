@@ -46,4 +46,18 @@ mod tests {
         let expected = None;
         assert_eq!(actual, expected);
     }
+
+    #[test]
+    fn a_repeated_string() {
+        let actual = to("aaaaaaaa");
+        let expected = Some(String64(0x6161616161616161));
+        assert_eq!(actual, expected);
+    }
+
+    #[test]
+    fn unused_is_null_padded() {
+        let actual = to("aaaa");
+        let expected = Some(String64(0x6161616100000000));
+        assert_eq!(actual, expected);
+    }
 }
