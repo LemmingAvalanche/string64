@@ -21,6 +21,15 @@ impl String64 {
         }
         Some(String64(res))
     }
+
+    fn new_alt1(s: &str) -> Option<String64> {
+        if s.len() > 8 || s.contains("\0") {
+            return None;
+        }
+        Some(String64(u64::from_ne_bytes(
+            s.as_bytes().try_into().expect("impossible: checked size"),
+        )))
+    }
 }
 
 #[cfg(test)]
