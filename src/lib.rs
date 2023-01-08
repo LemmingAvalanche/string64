@@ -29,9 +29,11 @@ impl String64 {
         if s.len() > 8 || s.contains("\0") {
             return None;
         }
-        Some(String64(u64::from_ne_bytes(
-            s.as_bytes().try_into().expect("impossible: checked size"),
-        )))
+        let mut array = [0u8; 8];
+        s.bytes()
+            .zip(array.iter_mut())
+            .for_each(|(b, ptr)| *ptr = b);
+        Some(String64(u64::from_ne_bytes(array)))
     }
 }
 
