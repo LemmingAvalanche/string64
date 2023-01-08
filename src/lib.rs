@@ -94,6 +94,13 @@ mod tests {
         assert_eq!(actual, None);
     }
 
+    #[test]
+    fn endiannes() {
+        let actual = String64::new("aaaabb");
+        let expected = Some(String64(0x6161616162620000));
+        assert_eq!(actual, expected);
+    }
+
     #[quickcheck]
     fn new_and_alt1(s: String) -> bool {
         String64::new(&s) == String64::new_alt1(&s)
