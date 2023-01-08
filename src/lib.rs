@@ -1,10 +1,10 @@
-/// A string that can fit eight bytes
 #[cfg(test)]
 extern crate quickcheck;
 #[cfg(test)]
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 
+/// A string that can fit eight bytes
 ///
 /// The rest (unused) bytes are null-padded. This means that the
 /// null byte (`\0`) cannot be used in the string proper.
