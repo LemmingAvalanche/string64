@@ -44,6 +44,8 @@ impl String64 {
         Some(String64(u64::from_be_bytes(array)))
     }
 
+    // TODO This should just return `String64` and panic if the
+    // string is “bad”
     pub const fn const_new(s: &str) -> Option<String64> {
         let len = s.len();
         let mut bs = s.as_bytes();
