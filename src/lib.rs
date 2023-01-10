@@ -106,6 +106,13 @@ mod tests {
     }
 
     #[test]
+    fn no_surprises() {
+        let actual1 = String64::new("h");
+        let actual2 = String64::new("h\0\0");
+        assert!(actual1 != actual2);
+    }
+
+    #[test]
     fn null_byte_string_is_none() {
         let actual = String64::new("\0\0");
         let expected = None;
