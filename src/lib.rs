@@ -38,6 +38,53 @@ impl String64 {
             .for_each(|(b, ptr)| *ptr = b);
         Some(String64(u64::from_be_bytes(array)))
     }
+
+    pub const fn const_new(s: &str) -> Option<String64> {
+        let len = s.len();
+        let mut bs = s.as_bytes();
+        if s.len() > 8 {
+            return None;
+        }
+        // unrolled
+        if (len >= 1 && bs[0] == 0)
+            || (len >= 2 && bs[1] == 0)
+            || (len >= 3 && bs[2] == 0)
+            || (len >= 4 && bs[3] == 0)
+            || (len >= 5 && bs[4] == 0)
+            || (len >= 6 && bs[5] == 0)
+            || (len >= 7 && bs[6] == 0)
+            || (len == 8 && bs[7] == 0)
+        {
+            return None;
+        }
+        let mut res = 0u64;
+        // unrolled
+        if s.len() >= 1 {
+            res += (bs[0] as u64) << 56;
+        }
+        if s.len() >= 2 {
+            res += (bs[1] as u64) << 48;
+        }
+        if s.len() >= 3 {
+            res += (bs[2] as u64) << 40;
+        }
+        if s.len() >= 4 {
+            res += (bs[3] as u64) << 32;
+        }
+        if s.len() >= 5 {
+            res += (bs[4] as u64) << 24;
+        }
+        if s.len() >= 6 {
+            res += (bs[5] as u64) << 16;
+        }
+        if s.len() >= 7 {
+            res += (bs[6] as u64) << 8;
+        }
+        if s.len() == 8 {
+            res += (bs[7] as u64) << 0;
+        }
+        Some(String64(res))
+    }
 }
 
 #[cfg(test)]
@@ -101,8 +148,14 @@ mod tests {
         assert_eq!(actual, expected);
     }
 
+
     #[quickcheck]
     fn new_and_alt1(s: String) -> bool {
         String64::new(&s) == String64::new_alt1(&s)
+    }
+
+    #[quickcheck]
+    fn new_and_const_new(s: String) -> bool {
+        String64::new(&s) == String64::const_new(&s)
     }
 }
