@@ -19,7 +19,6 @@ pub struct String64(u64);
 
 impl String64 {
     /// Convert to `String64` if it fits and it contains no null bytes
-    // NOTE can’t be `const` due to the for loop
     pub fn new(s: &str) -> Option<String64> {
         if s.len() > 8 || s.contains("\0") {
             return None;
