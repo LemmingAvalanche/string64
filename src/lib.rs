@@ -5,7 +5,7 @@ extern crate quickcheck;
 extern crate quickcheck_macros;
 
 // Just testing that we can do it
-const _world: Option<String64> = String64::const_new("HolaM");
+const _world: String64 = String64::unwrap(String64::const_new("HolaM"));
 
 /// A string that can fit eight bytes
 ///
@@ -89,6 +89,13 @@ impl String64 {
             res += (bs[7] as u64) << 0;
         }
         Some(String64(res))
+    }
+
+    pub const fn unwrap(o: Option<Self>) -> Self {
+        match o {
+            Some(o) => o,
+            None => panic!("empty"),
+        }
     }
 }
 
