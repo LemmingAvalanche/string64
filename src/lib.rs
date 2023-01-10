@@ -179,4 +179,9 @@ mod tests {
     fn new_and_const_new(s: String) -> bool {
         String64::new(&s) == String64::const_new(&s)
     }
+
+    #[quickcheck]
+    fn unicode_strings_less_than_nine_bytes(s: String) -> bool {
+        !(s.len() <= 8 && !s.contains("\0")) || String64::new(&s).is_some()
+    }
 }
