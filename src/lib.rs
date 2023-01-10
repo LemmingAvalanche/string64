@@ -11,6 +11,9 @@ const _world: Option<String64> = String64::const_new("HolaM");
 ///
 /// The rest (unused) bytes are null-padded. This means that the
 /// null byte (`\0`) cannot be used in the string proper.
+///
+/// (It can (could) be but I didn’t want surprises like
+/// `String64::new("h\0\0") == String64::new("h")`.)
 #[derive(Debug, PartialEq, Eq)]
 pub struct String64(u64);
 
