@@ -4,6 +4,9 @@ extern crate quickcheck;
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 
+// Just testing that we can do it
+const _world: Option<String64> = String64::const_new("HolaM");
+
 /// A string that can fit eight bytes
 ///
 /// The rest (unused) bytes are null-padded. This means that the
