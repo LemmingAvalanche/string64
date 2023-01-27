@@ -169,4 +169,10 @@ mod tests {
     fn unicode_strings_less_than_nine_bytes(s: String) -> bool {
         !(s.len() <= 8) || String64::new(&s).is_some()
     }
+
+    #[test]
+    fn string() {
+        // NOTE Secret sauce!
+        std::str::from_utf8(&[b'h', b'e', b'l', b'l', b'o']).unwrap();
+    }
 }
