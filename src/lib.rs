@@ -14,6 +14,7 @@ const _world: String64 = String64::unwrap(String64::const_new("HolaM"));
 ///
 /// (It can (could) be but I didn’t want surprises like
 /// `String64::new("h\0\0") == String64::new("h")`.)
+// TODO Reconsider null byte stance
 #[derive(Debug, PartialEq, Eq)]
 pub struct String64(u64);
 
