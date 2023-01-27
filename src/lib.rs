@@ -9,19 +9,15 @@ const _world: String64 = String64::unwrap(String64::const_new("HolaM"));
 
 /// A string that can fit eight bytes
 ///
-/// The rest (unused) bytes are null-padded. This means that the
-/// null byte (`\0`) cannot be used in the string proper.
-///
-/// (It can (could) be but I didn’t want surprises like
-/// `String64::new("h\0\0") == String64::new("h")`.)
-// TODO Reconsider null byte stance
+/// Unused bytes are filled with the null byte. This has the side effect of
+/// e.g. `String64::new("h\0\0") == String64::new("h")`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct String64(u64);
 
 impl String64 {
     /// Convert to `String64` if it fits and it contains no null bytes
     pub fn new(s: &str) -> Option<String64> {
-        if s.len() > 8 || s.contains("\0") {
+        if s.len() > 8 {
             return None;
         }
         let mut res = 0u64;
@@ -35,7 +31,7 @@ impl String64 {
     }
 
     fn new_alt1(s: &str) -> Option<String64> {
-        if s.len() > 8 || s.contains("\0") {
+        if s.len() > 8 {
             return None;
         }
         let mut array = [0u8; 8];
@@ -51,18 +47,6 @@ impl String64 {
         let len = s.len();
         let mut bs = s.as_bytes();
         if s.len() > 8 {
-            return None;
-        }
-        // unrolled
-        if (len >= 1 && bs[0] == 0)
-            || (len >= 2 && bs[1] == 0)
-            || (len >= 3 && bs[2] == 0)
-            || (len >= 4 && bs[3] == 0)
-            || (len >= 5 && bs[4] == 0)
-            || (len >= 6 && bs[5] == 0)
-            || (len >= 7 && bs[6] == 0)
-            || (len == 8 && bs[7] == 0)
-        {
             return None;
         }
         let mut res = 0u64;
@@ -119,13 +103,13 @@ mod tests {
     fn no_surprises() {
         let actual1 = String64::new("h");
         let actual2 = String64::new("h\0\0");
-        assert!(actual1 != actual2);
+        assert!(actual1 == actual2);
     }
 
     #[test]
-    fn null_byte_string_is_none() {
+    fn null_byte_string_is_empty() {
         let actual = String64::new("\0\0");
-        let expected = None;
+        let expected = String64::new("");
         assert_eq!(actual, expected);
     }
 
@@ -183,6 +167,6 @@ mod tests {
 
     #[quickcheck]
     fn unicode_strings_less_than_nine_bytes(s: String) -> bool {
-        !(s.len() <= 8 && !s.contains("\0")) || String64::new(&s).is_some()
+        !(s.len() <= 8) || String64::new(&s).is_some()
     }
 }
