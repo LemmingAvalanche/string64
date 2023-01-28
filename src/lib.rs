@@ -4,8 +4,6 @@ extern crate quickcheck;
 #[macro_use(quickcheck)]
 extern crate quickcheck_macros;
 
-use std::marker::PhantomData;
-
 // Just testing that we can do it
 const _world: String64 = String64::unwrap(String64::const_new("HolaM"));
 
@@ -15,27 +13,6 @@ const _world: String64 = String64::unwrap(String64::const_new("HolaM"));
 /// e.g. `String64::new("h\0\0") == String64::new("h")`.
 #[derive(Debug, PartialEq, Eq)]
 pub struct String64(u64);
-
-// TODO
-pub struct Str64<'a> {
-    reference: &'a str,
-    // This will never be exposed outside the module so the payload
-    // of `reference` won’t change from under it
-    payload: [u8; 8],
-}
-
-impl<'a> Str64<'a> {
-    pub fn new(payload: [u8; 8]) -> Self {
-        let mut ret = Str64 {
-            reference: &"",
-            payload,
-        };
-        // Unwrap since we will get the array from
-        // some code that guarantees UTF-8
-        ret.reference = std::str::from_utf8(&ret.payload).unwrap();
-        ret
-    }
-}
 
 impl String64 {
     /// Convert to `String64` if it fits
