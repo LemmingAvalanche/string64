@@ -63,6 +63,11 @@ impl String64 {
         }
         String64(res)
     }
+
+    pub fn as_str(&self) -> &str {
+        std::str::from_utf8(&self.0)
+            .expect("internal error: should have been valid UTF-8")
+    }
 }
 
 #[cfg(test)]
@@ -146,5 +151,14 @@ mod tests {
     #[quickcheck]
     fn unicode_strings_less_than_nine_bytes(s: String) -> bool {
         !(s.len() <= 8) || String64::new(&s).is_some()
+    }
+
+    #[quickcheck]
+    fn roundtrip_as_str(s: String) -> bool {
+        if let Some(m) = String64::new(&s) {
+            m.as_str() == &s
+        } else {
+            true
+        }
     }
 }
