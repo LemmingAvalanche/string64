@@ -15,7 +15,7 @@ const _world: String64 = String64::unwrap(String64::const_new("HolaM"));
 pub struct String64(u64);
 
 impl String64 {
-    /// Convert to `String64` if it fits and it contains no null bytes
+    /// Convert to `String64` if it fits
     pub fn new(s: &str) -> Option<String64> {
         if s.len() > 8 {
             return None;
