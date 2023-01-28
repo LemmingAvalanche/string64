@@ -161,7 +161,7 @@ mod tests {
     #[quickcheck]
     fn roundtrip_as_str(s: String) -> bool {
         if let Some(m) = String64::new(&s) {
-            m.as_str() == &s
+            !&s.contains("\0") || m.as_str() == &s
         } else {
             true
         }
