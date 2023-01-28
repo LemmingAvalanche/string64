@@ -65,8 +65,12 @@ impl String64 {
     }
 
     pub fn as_str(&self) -> &str {
-        std::str::from_utf8(&self.0)
+        std::str::from_utf8(&self.0[0..self.index()])
             .expect("internal error: should have been valid UTF-8")
+    }
+
+    fn index(&self) -> usize {
+        *self.0.iter().position(|elem| *elem == 0).get_or_insert(8)
     }
 }
 
