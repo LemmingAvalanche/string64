@@ -5,84 +5,63 @@ extern crate quickcheck;
 extern crate quickcheck_macros;
 
 // Just testing that we can do it
-const _world: String64 = String64::unwrap(String64::const_new("HolaM"));
+const _world: String64 = String64::const_new("HolaM");
+
+type Underlying = [u8; 8];
 
 /// A string that can fit eight bytes
 ///
 /// Unused bytes are filled with the null byte. This has the side effect of
 /// e.g. `String64::new("h\0\0") == String64::new("h")`.
 #[derive(Debug, PartialEq, Eq)]
-pub struct String64(u64);
+pub struct String64(Underlying);
 
 impl String64 {
     /// Convert to `String64` if it fits
-    pub fn new(s: &str) -> Option<String64> {
+    fn new(s: &str) -> Option<String64> {
         if s.len() > 8 {
             return None;
         }
-        let mut res = 0u64;
-        assert!(res == 0);
-        let mut counter = 56;
-        for b in s.bytes() {
-            res += (b as u64) << counter;
-            counter -= 8;
-        }
-        Some(String64(res))
-    }
-
-    fn new_alt1(s: &str) -> Option<String64> {
-        if s.len() > 8 {
-            return None;
-        }
-        let mut array = [0u8; 8];
+        let mut array = [b'\0'; 8];
         s.bytes()
             .zip(array.iter_mut())
             .for_each(|(b, ptr)| *ptr = b);
-        Some(String64(u64::from_be_bytes(array)))
+        Some(String64(array))
     }
 
-    // TODO This should just return `String64` and panic if the
-    // string is “bad”
-    pub const fn const_new(s: &str) -> Option<String64> {
+    pub const fn const_new(s: &str) -> String64 {
         let len = s.len();
-        let mut bs = s.as_bytes();
+        let bs = s.as_bytes();
         if s.len() > 8 {
-            return None;
+            panic!("Expected size at most 8 but was greater than that");
         }
-        let mut res = 0u64;
+        let mut res = [0u8; 8];
         // unrolled
         if s.len() >= 1 {
-            res += (bs[0] as u64) << 56;
+            res[0] = bs[0];
         }
         if s.len() >= 2 {
-            res += (bs[1] as u64) << 48;
+            res[1] = bs[1];
         }
         if s.len() >= 3 {
-            res += (bs[2] as u64) << 40;
+            res[2] = bs[2];
         }
         if s.len() >= 4 {
-            res += (bs[3] as u64) << 32;
+            res[3] = bs[3];
         }
         if s.len() >= 5 {
-            res += (bs[4] as u64) << 24;
+            res[4] = bs[4];
         }
         if s.len() >= 6 {
-            res += (bs[5] as u64) << 16;
+            res[5] = bs[5];
         }
         if s.len() >= 7 {
-            res += (bs[6] as u64) << 8;
+            res[6] = bs[6];
         }
         if s.len() == 8 {
-            res += (bs[7] as u64) << 0;
+            res[7] = bs[7];
         }
-        Some(String64(res))
-    }
-
-    pub const fn unwrap(o: Option<Self>) -> Self {
-        match o {
-            Some(o) => o,
-            None => panic!("empty"),
-        }
+        String64(res)
     }
 }
 
@@ -123,21 +102,21 @@ mod tests {
     #[test]
     fn a_repeated_string() {
         let actual = String64::new("aaaaaaaa");
-        let expected = Some(String64(0x6161616161616161));
+        let expected = Some(String64([b'a'; 8]));
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn unused_is_null_padded() {
         let actual = String64::new("aaaa");
-        let expected = Some(String64(0x6161616100000000));
+        let expected = Some(String64([b'a', b'a', b'a', b'a', b'\0', b'\0', b'\0', b'\0']));
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn four_a_with_ring_above() {
         let actual = String64::new("åååå");
-        let expected = Some(String64(0xc3a5c3a5c3a5c3a5));
+        let expected = Some(String64([0xc3, 0xa5, 0xc3, 0xa5, 0xc3, 0xa5, 0xc3, 0xa5]));
         assert_eq!(actual, expected);
     }
 
@@ -150,19 +129,18 @@ mod tests {
     #[test]
     fn endiannes() {
         let actual = String64::new("aaaabb");
-        let expected = Some(String64(0x6161616162620000));
+        let expected = Some(String64([b'a', b'a', b'a', b'a', b'b', b'b', 0, 0]));
         assert_eq!(actual, expected);
-    }
-
-
-    #[quickcheck]
-    fn new_and_alt1(s: String) -> bool {
-        String64::new(&s) == String64::new_alt1(&s)
     }
 
     #[quickcheck]
     fn new_and_const_new(s: String) -> bool {
-        String64::new(&s) == String64::const_new(&s)
+        let new = String64::new(&s);
+        if let Some(m) = String64::new(&s) {
+            m == String64::const_new(&s)
+        } else {
+            true
+        }
     }
 
     #[quickcheck]
