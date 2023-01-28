@@ -5,7 +5,7 @@ extern crate quickcheck;
 extern crate quickcheck_macros;
 
 // Just testing that we can do it
-const _world: String64 = String64::const_new("HolaM");
+const _WORLD: String64 = String64::const_new("HolaM");
 
 type Underlying = [u8; 8];
 
@@ -18,6 +18,7 @@ pub struct String64(Underlying);
 
 impl String64 {
     /// Convert to `String64` if it fits
+    #[allow(unused)]
     fn new(s: &str) -> Option<String64> {
         if s.len() > 8 {
             return None;
@@ -29,8 +30,8 @@ impl String64 {
         Some(String64(array))
     }
 
+    #[allow(clippy::len_zero)]
     pub const fn const_new(s: &str) -> String64 {
-        let len = s.len();
         let bs = s.as_bytes();
         if s.len() > 8 {
             panic!("Expected size at most 8 but was greater than that");
