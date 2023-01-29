@@ -13,7 +13,7 @@ type Underlying = [u8; 8];
 ///
 /// Unused bytes are filled with the null byte. This has the side effect of
 /// e.g. `String64::new("h\0\0") == String64::new("h")`.
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Hash, Copy, Clone)]
 pub struct String64 {
     inner: Underlying,
 }
@@ -21,7 +21,7 @@ pub struct String64 {
 impl String64 {
     /// Convert to `String64` if it fits
     #[allow(unused)]
-    fn new(s: &str) -> Option<String64> {
+    pub fn new(s: &str) -> Option<String64> {
         if s.len() > 8 {
             return None;
         }
