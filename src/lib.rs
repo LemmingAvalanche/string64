@@ -14,7 +14,9 @@ type Underlying = [u8; 8];
 /// Unused bytes are filled with the null byte. This has the side effect of
 /// e.g. `String64::new("h\0\0") == String64::new("h")`.
 #[derive(Debug, PartialEq, Eq)]
-pub struct String64(Underlying);
+pub struct String64 {
+    inner: Underlying,
+}
 
 impl String64 {
     /// Convert to `String64` if it fits
@@ -27,7 +29,7 @@ impl String64 {
         s.bytes()
             .zip(array.iter_mut())
             .for_each(|(b, ptr)| *ptr = b);
-        Some(String64(array))
+        Some(String64 { inner: array })
     }
 
     #[allow(clippy::len_zero)]
@@ -62,16 +64,16 @@ impl String64 {
         if s.len() == 8 {
             res[7] = bs[7];
         }
-        String64(res)
+        String64 { inner: res }
     }
 
     pub fn as_str(&self) -> &str {
-        std::str::from_utf8(&self.0[0..self.index()])
+        std::str::from_utf8(&self.inner[0..self.index()])
             .expect("internal error: should have been valid UTF-8")
     }
 
     fn index(&self) -> usize {
-        *self.0.iter().position(|elem| *elem == 0).get_or_insert(8)
+        *self.inner.iter().position(|elem| *elem == 0).get_or_insert(8)
     }
 }
 
@@ -112,21 +114,21 @@ mod tests {
     #[test]
     fn a_repeated_string() {
         let actual = String64::new("aaaaaaaa");
-        let expected = Some(String64([b'a'; 8]));
+        let expected = Some(String64 { inner: [b'a'; 8]});
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn unused_is_null_padded() {
         let actual = String64::new("aaaa");
-        let expected = Some(String64([b'a', b'a', b'a', b'a', b'\0', b'\0', b'\0', b'\0']));
+        let expected = Some(String64 { inner: [b'a', b'a', b'a', b'a', b'\0', b'\0', b'\0', b'\0'] });
         assert_eq!(actual, expected);
     }
 
     #[test]
     fn four_a_with_ring_above() {
         let actual = String64::new("åååå");
-        let expected = Some(String64([0xc3, 0xa5, 0xc3, 0xa5, 0xc3, 0xa5, 0xc3, 0xa5]));
+        let expected = Some(String64 { inner: [0xc3, 0xa5, 0xc3, 0xa5, 0xc3, 0xa5, 0xc3, 0xa5] } );
         assert_eq!(actual, expected);
     }
 
@@ -139,7 +141,7 @@ mod tests {
     #[test]
     fn endiannes() {
         let actual = String64::new("aaaabb");
-        let expected = Some(String64([b'a', b'a', b'a', b'a', b'b', b'b', 0, 0]));
+        let expected = Some(String64 { inner: [b'a', b'a', b'a', b'a', b'b', b'b', 0, 0] });
         assert_eq!(actual, expected);
     }
 
